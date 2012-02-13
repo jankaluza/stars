@@ -1,0 +1,20 @@
+package unifier;
+
+message User {
+	required int32 id = 1;
+	optional string str1 = 2;
+	optional string str2 = 3;
+}
+
+message UnifierMessage {
+	enum Type { 
+		TYPE_TICK = 1;
+		TYPE_TOCK = 2;
+		TYPE_REGISTER = 3;
+		TYPE_USER_LOGIN = 4;
+		TYPE_USER_REGISTER = 5;
+	}
+	required Type type = 1;
+	required string to = 2;
+	optional bytes payload = 3;
+}

@@ -1,0 +1,32 @@
+package stars;
+
+message EntityInfo {
+	required int32 id = 1;
+	required string name = 2;
+}
+
+message Login {
+	required string username = 1;
+	required string password = 2;
+}
+
+message MoveState {
+	required int32 id = 1;
+	required int32 x = 2;
+	required int32 y = 3;
+	required int32 dst_x = 4;
+	required int32 dst_y = 5;
+	required double angle = 6;
+}
+
+message WrapperMessage {
+	enum Type { 
+		TYPE_PING 				= 1;
+		TYPE_PONG	 			= 2;
+		TYPE_LOGIN				= 3;
+		TYPE_MOVE_STATE			= 4;
+		TYPE_ENTITY_INFO		= 5;
+	}
+	required Type type = 1;
+	optional bytes payload = 2;
+}

@@ -1,0 +1,4 @@
+ADD_SUBDIRECTORY(frontend_service)
+ADD_SUBDIRECTORY(ticking_service)
+ADD_SUBDIRECTORY(persistent_data_service)
+ADD_SUBDIRECTORY(unifier_service)

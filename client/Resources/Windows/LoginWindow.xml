@@ -1,0 +1,8 @@
+<win caption="Login" w="180" h="90">
+	<label name="label1" text="Username:" x="4" y="16" w="10" h="10"/>
+	<lineedit name="username" x="60" y="15" w="117" h="15"/>
+	<label name="label2" text="Password:" x="4" y="35" w="10" h="10"/>
+	<lineedit name="password" x="60" y="34" w="117" h="15"/>
+	<button name="login" text="Login" x="110" y="53" w="67" h="15"/>
+	<label name="info" text="" x="4" y="73" w="10" h="10"/>
+</win>
