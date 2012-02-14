@@ -53,7 +53,7 @@ void SessionManager::handlePDLoginRegisterResponse(const std::string &data, bool
 
 	Session::ref s = it->second;
 
-	if (!payload.str1().empty()) {
+	if (!payload.str2().empty()) {
 		it->second->setAuthenticated(true, boost::lexical_cast<unsigned long>(payload.str2()), payload.str1());
 		m_sessions[boost::lexical_cast<unsigned long>(payload.str2())] = it->second;
 		m_sessions.erase(it->first);
@@ -64,7 +64,7 @@ void SessionManager::handlePDLoginRegisterResponse(const std::string &data, bool
 
 	stars::Login login;
 	login.set_username(payload.str1());
-	login.set_password("");
+	login.set_password(payload.str2());
 
 	if (log) {
 		s->send(login, stars::WrapperMessage_Type_TYPE_LOGIN);

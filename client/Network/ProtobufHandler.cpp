@@ -140,7 +140,7 @@ void ProtobufHandler::handleLogin(const std::string &data) {
 		return;
 	}
 
-	if (payload.username().empty()) {
+	if (payload.password().empty()) {
 		LoginWindow *window = new LoginWindow();
 		window->setInfoText("Bad username or password.");
 		WindowManager::instance()->addWindow(window);
@@ -156,9 +156,14 @@ void ProtobufHandler::handleRegister(const std::string &data) {
 		return;
 	}
 
-	if (payload.username().empty()) {
+	if (payload.password().empty()) {
 		LoginWindow *window = new LoginWindow();
-		window->setInfoText("Unable to register.");
+		if (payload.username().empty()) {
+			window->setInfoText("Unable to register.");
+		}
+		else {
+			window->setInfoText(payload.username());
+		}
 		WindowManager::instance()->addWindow(window);
 	}
 	else {
