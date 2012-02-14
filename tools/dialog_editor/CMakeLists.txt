@@ -1,4 +1,4 @@
-FILE(GLOB SRC *.cpp */*.cpp ../../client/Widgets/*.cpp ../../client/Base/Surface.cpp ../../client/Base/FontManager.cpp ../../client/Base/Timer.cpp)
+FILE(GLOB SRC *.cpp */*.cpp ../../client/Widgets/*.cpp ../../client/Base/Surface.cpp ../../client/Base/FontManager.cpp ../../client/Base/Timer.cpp ../../client/Windows/LineEditWindow.cpp)
 
 ADD_EXECUTABLE(stars_dialog_editor ${SRC})
 include_directories(.)

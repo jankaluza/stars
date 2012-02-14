@@ -22,10 +22,11 @@
 
 #include "SDL/SDL.h"
 #include <string>
+#include "Windows/LineEditWindow.h"
 
 class Surface;
 
-class EditorLoop {
+class EditorLoop : public LineEditHandler {
 	public:
 		EditorLoop();
 		~EditorLoop();
@@ -36,7 +37,11 @@ class EditorLoop {
 			return m_initialized;
 		}
 
+		void handleLineEditText(const std::string &name, const std::string &text);
+
 	private:
 		Surface *m_screen;
 		bool m_initialized;
+		Widget *currentWidget;
+		Window *mainWindow;
 };

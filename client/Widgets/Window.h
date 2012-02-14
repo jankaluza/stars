@@ -37,9 +37,14 @@ class Window : public Widget {
 
 		static Window *createFromFile(const std::string &f);
 		static void createFromFile(Window *win, const std::string &f);
+		void saveToFile(const std::string &f);
 
 		void addWidget(Widget *widget);
 		Widget *getWidget(const std::string &name);
+
+		const std::map<std::string, Widget *> &getWidgets() {
+			return m_widgets;
+		}
 
 		void clearFocus(Widget *except = NULL);
 
@@ -48,6 +53,8 @@ class Window : public Widget {
 		void setCaption(const std::string &caption) {
 			m_caption = caption;
 		}
+
+		virtual void setFocus(bool focus);
 
 		virtual void render(Surface *screen);
 

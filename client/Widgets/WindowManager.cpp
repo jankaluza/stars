@@ -20,6 +20,7 @@
 
 #include "WindowManager.h"
 #include "Window.h"
+#include "Widget.h"
 #include "Base/Surface.h"
 #include "Base/Timer.h"
 
@@ -56,6 +57,15 @@ void WindowManager::removeWindow(Window *object) {
 	m_windows.erase(i);
 }
 
+void WindowManager::clearFocus(Widget *except) {
+	for (std::vector<Window *>::iterator it = m_windows.begin(); it != m_windows.end(); it++) {
+		Widget *widget = *it;
+		if (widget != except) {
+			widget->setFocus(false);
+		}
+	}
+}
+
 void WindowManager::render(Surface *screen) {
 	for (std::vector<Window *>::iterator it = m_windows.begin(); it != m_windows.end(); it++) {
 		Window *win = *it;
@@ -72,6 +82,9 @@ bool WindowManager::handleEvent(SDL_Event &event) {
 			Window *win = *it;
 			if (x > win->getX() && x < win->getX() + win->getW() && y > win->getY() && y < win->getY() + win->getH()) {
 				win->handleEvent(event);
+				if (win->hasFocus()) {
+					clearFocus(win);
+				}
 				return true;
 			}
 		}

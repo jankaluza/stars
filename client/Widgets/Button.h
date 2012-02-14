@@ -41,6 +41,14 @@ class Button : public Widget {
 			m_clicked = clicked;
 		}
 
+		const std::string &getText() {
+			return m_name;
+		}
+
+		void setText(const std::string &text) {
+			m_name = text;
+		}
+
 		virtual void render(Surface *screen);
 
 		virtual void handleEvent(SDL_Event &event);

@@ -23,6 +23,8 @@
 #include "Base/Timer.h"
 #include "Base/FontManager.h"
 #include "Widgets/WindowManager.h"
+#include "Widgets/Button.h"
+#include "Widgets/Label.h"
 #include "Windows/LoginWindow.h"
 
 #include "SDL/SDL.h"
@@ -65,6 +67,26 @@ EditorLoop::~EditorLoop() {
 	}
 }
 
+void EditorLoop::handleLineEditText(const std::string &name, const std::string &text) {
+	if (name == "name") {
+		currentWidget->setName(text);
+	}
+	else if (name == "button") {
+		std::cout << "button\n";
+		Button *b = new Button("", 20, 20, 70, 15);
+		b->setName(text);
+		mainWindow->addWidget(b);
+	}
+	else if (name == "text") {
+		if (dynamic_cast<Button *>(currentWidget)) {
+			dynamic_cast<Button *>(currentWidget)->setText(text);
+		}
+		else if (dynamic_cast<Label *>(currentWidget)) {
+			dynamic_cast<Label *>(currentWidget)->setText(text);
+		}
+	}
+}
+
 void EditorLoop::start(const std::string &f) {
 	if (!m_initialized || !m_screen) {
 		return;
@@ -83,8 +105,12 @@ void EditorLoop::start(const std::string &f) {
 	fps.start();
 	loader.start();
 
-	Window *mainWindow = Window::createFromFile(f);
+	mainWindow = Window::createFromFile(f);
 	WindowManager::instance()->addWindow(mainWindow);
+
+	currentWidget = NULL;
+	int currentWidgetCounter = 0;
+	std::string currentWidgetName;
 
 	while (quit == false) {
 		fps2.start();
@@ -94,10 +120,80 @@ void EditorLoop::start(const std::string &f) {
 			if (event.type == SDL_QUIT) {
 				quit = true;
 			}
+			if (event.type == SDL_KEYDOWN) {
+				int diff = 1;
+				if (event.key.keysym.mod & KMOD_CAPS) {
+					diff = 10;
+				}
+				if (event.key.keysym.sym == SDLK_TAB) {
+					currentWidgetCounter = (currentWidgetCounter + 1) % (mainWindow->getWidgets().size() + 1);
+				}
+				else if (event.key.keysym.sym == SDLK_RIGHT) {
+					if (event.key.keysym.mod & KMOD_SHIFT) {
+						currentWidget->setW(currentWidget->getW() + diff);
+					}
+					else {
+						currentWidget->setX(currentWidget->getX() + diff);
+					}
+				}
+				else if (event.key.keysym.sym == SDLK_LEFT) {
+					if (event.key.keysym.mod & KMOD_SHIFT) {
+						currentWidget->setW(currentWidget->getW() - diff);
+					}
+					else {
+						currentWidget->setX(currentWidget->getX() - diff);
+					}
+				}
+				else if (event.key.keysym.sym == SDLK_DOWN) {
+					if (event.key.keysym.mod & KMOD_SHIFT) {
+						currentWidget->setH(currentWidget->getH() + diff);
+					}
+					else {
+						currentWidget->setY(currentWidget->getY() + diff);
+					}
+				}
+				else if (event.key.keysym.sym == SDLK_UP) {
+					if (event.key.keysym.mod & KMOD_SHIFT) {
+						currentWidget->setH(currentWidget->getH() - diff);
+					}
+					else {
+						currentWidget->setY(currentWidget->getY() - diff);
+					}
+				}
+				else if (event.key.keysym.sym == SDLK_F2) {
+					LineEditWindow *win = new LineEditWindow("name", "Widget Name:");
+					win->setHandler(this);
+					WindowManager::instance()->addWindow(win);
+				}
+				else if (event.key.keysym.sym == SDLK_F3) {
+					LineEditWindow *win = new LineEditWindow("text", "Text:");
+					win->setHandler(this);
+					WindowManager::instance()->addWindow(win);
+				}
+				else if (event.key.keysym.sym == SDLK_b && event.key.keysym.mod & KMOD_CTRL) {
+					LineEditWindow *win = new LineEditWindow("button", "Widget Name:");
+					win->setHandler(this);
+					WindowManager::instance()->addWindow(win);
+				}
+			}
 
 			if (WindowManager::instance()->handleEvent(event)) {
 				continue;
 			}
+		}
+
+		int i = 0;
+		currentWidget = NULL;
+		for (std::map<std::string, Widget *>::const_iterator it = mainWindow->getWidgets().begin(); it != mainWindow->getWidgets().end(); it++) {
+			if (i++ == currentWidgetCounter) {
+				currentWidget = it->second;
+				currentWidgetName = it->first;
+			}
+		}
+
+		if (currentWidget == NULL) {
+			currentWidget = mainWindow;
+			currentWidgetName = "MainWindow";
 		}
 
 		// Restart delta timer.
@@ -107,11 +203,13 @@ void EditorLoop::start(const std::string &f) {
 
 		WindowManager::instance()->render(m_screen);
 
+		m_screen->box(currentWidget->getX(), currentWidget->getY(), currentWidget->getW(), currentWidget->getH(), 255, 0, 0);
+
 		frame++;
 
 		// Show FPS
 		std::stringstream caption;
-		caption << "FPS: " << frame / ( fps.getTicks() / 1000.f );
+		caption << "Widget: " << currentWidgetName;
 		m_screen->renderText(0, 0, caption.str());
 
 		update.start();
@@ -119,9 +217,10 @@ void EditorLoop::start(const std::string &f) {
 		m_screen->flip();
 
 		if (loader.getTicks() > 1000) {
-			mainWindow->destroy();
-			mainWindow = Window::createFromFile(f);
-			WindowManager::instance()->addWindow(mainWindow);
+// 			mainWindow->destroy();
+// 			mainWindow = Window::createFromFile(f);
+// 			WindowManager::instance()->addWindow(mainWindow);
+			mainWindow->saveToFile(f);
 			loader.start();
 		}
 

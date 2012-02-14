@@ -45,7 +45,7 @@ class Widget {
 		void setName(const std::string &name) { m_name = name; }
 		std::string &getName() { return m_name; }
 
-		void setFocus(bool focus) { m_focus = focus; }
+		virtual void setFocus(bool focus) { m_focus = focus; }
 		bool hasFocus() { return m_focus; }
 
 	private:

@@ -1,0 +1,5 @@
+<window caption="Edit" w="180" h="53">
+    <lineedit name="edit" x="80" y="15" w="97" h="15" />
+    <label text="Widget name" name="info" x="4" y="16" w="10" h="10" />
+    <button text="OK" name="ok" x="110" y="34" w="67" h="15" />
+</window>

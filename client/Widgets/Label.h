@@ -36,6 +36,10 @@ class Label : public Widget {
 			m_text = text;
 		}
 
+		const std::string &getText() {
+			return m_text;
+		}
+
 		virtual void render(Surface *screen);
 
 		virtual void handleEvent(SDL_Event &event);

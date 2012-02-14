@@ -20,33 +20,36 @@
 
 #pragma once
 
-#include <map>
-#include <vector>
-
+#include "Widgets/Window.h"
 #include "SDL/SDL.h"
+#include <string>
 
-class Window;
-class Widget;
-class Surface;
+class Button;
+class LineEdit;
+class Label;
 
-class WindowManager {
+class LineEditHandler {
 	public:
+		virtual ~LineEditHandler() {}
 
-		virtual ~WindowManager();
+		virtual void handleLineEditText(const std::string &name, const std::string &text) = 0;
+};
 
-		void addWindow(Window *object);
-		void removeWindow(Window *object);
+class LineEditWindow : public Window {
+	public:
+		LineEditWindow(const std::string &name, const std::string &info);
+		virtual ~LineEditWindow();
 
-		void clearFocus(Widget *except = NULL);
+		void handleButtonClicked(Button *button);
 
-		void render(Surface *screen);
+		const std::string &getText();
 
-		bool handleEvent(SDL_Event &event);
-
-		static WindowManager *instance();
+		void setHandler(LineEditHandler *handler) {
+			m_handler = handler;
+		}
 
 	private:
-		WindowManager();
-		static WindowManager *m_instance;
-		std::vector<Window *> m_windows;
+		LineEdit *m_edit;
+		Label *m_info;
+		LineEditHandler *m_handler;
 };

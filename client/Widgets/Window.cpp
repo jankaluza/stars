@@ -108,6 +108,46 @@ Window *Window::createFromFile(const std::string &f) {
 	return win;
 }
 
+void Window::saveToFile(const std::string &f) {
+	TiXmlDocument d(f);
+	TiXmlElement *root = new TiXmlElement("window");
+	root->SetAttribute("caption", m_caption);
+	root->SetAttribute("w", getW());
+	root->SetAttribute("h", getH());
+
+	for (std::map<std::string, Widget *>::iterator it = m_widgets.begin(); it != m_widgets.end(); it++) {
+		Widget *widget = it->second;
+		TiXmlElement *el = NULL;
+
+		if (dynamic_cast<Label *>(widget)) {
+			el = new TiXmlElement("label");
+			el->SetAttribute("text", dynamic_cast<Label *>(widget)->getText());
+		}
+		else if (dynamic_cast<LineEdit *>(widget)) {
+			el = new TiXmlElement("lineedit");
+// 			el->setAttribute("text", dynamic_cast<Label *>(widget)->getText());
+		}
+		else if (dynamic_cast<Button *>(widget)) {
+			el = new TiXmlElement("button");
+			el->SetAttribute("text", dynamic_cast<Button *>(widget)->getText());
+		}
+		else {
+			continue;
+		}
+
+		el->SetAttribute("name", widget->getName());
+		el->SetAttribute("x", widget->getX() - getX());
+		el->SetAttribute("y", widget->getY() - getY());
+		el->SetAttribute("w", widget->getW());
+		el->SetAttribute("h", widget->getH());
+		root->LinkEndChild(el);
+	}
+	d.LinkEndChild(root);
+	
+	d.SaveFile();
+	
+}
+
 void Window::addWidget(Widget *widget) {
 	widget->setX(getX() + widget->getX());
 	widget->setY(getY() + widget->getY());
@@ -123,12 +163,23 @@ Widget *Window::getWidget(const std::string &name) {
 }
 
 void Window::clearFocus(Widget *except) {
+	for (std::map<std::string, Widget *>::iterator it = m_widgets.begin(); it != m_widgets.end(); it++) {
+		Widget *widget = it->second;
+		if (widget != except) {
+			widget->setFocus(false);
+		}
+	}
+}
+
+void Window::setFocus(bool focus) {
+	if (!focus) {
 		for (std::map<std::string, Widget *>::iterator it = m_widgets.begin(); it != m_widgets.end(); it++) {
 			Widget *widget = it->second;
-			if (widget != except) {
-				widget->setFocus(false);
-			}
+			widget->setFocus(false);
 		}
+	}
+
+	Widget::setFocus(focus);
 }
 
 void Window::destroy() {
@@ -222,6 +273,5 @@ void Window::handleEvent(SDL_Event &event) {
 			}
 		}
 	}
-
 }
 

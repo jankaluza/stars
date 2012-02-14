@@ -1,0 +1,7 @@
+stars_*
+Makefile
+CMakeFiles
+*.cmake
+*~
+*.pb.*
+CMakeCache*

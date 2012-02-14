@@ -1,5 +1,5 @@
 <window caption="Login" w="180" h="90">
-    <label text="" name="info" x="4" y="73" w="10" h="10" />
+    <label text="aaaa" name="" x="3" y="73" w="12" h="10" />
     <label text="Username:" name="label1" x="4" y="16" w="10" h="10" />
     <label text="Password:" name="label2" x="4" y="35" w="10" h="10" />
     <button text="Login" name="login" x="110" y="53" w="67" h="15" />
