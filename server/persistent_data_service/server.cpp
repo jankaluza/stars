@@ -35,6 +35,11 @@ DEFINE_LOGGER(logger, "PersistentDataService");
 static int id;
 
 Server::Server() {
+	m_mysql = new MySQLBackend();
+	while (m_mysql->connect() == false) {
+		LOG_ERROR(logger, "Cannot connect the MySQL server.");
+		usleep(1000000);
+	}
 }
 
 void Server::handleUnifierMessage(unifier::UnifierMessage &message) {
