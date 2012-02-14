@@ -28,13 +28,9 @@
 #include "mysql.h"
 
 struct UserInfo {
-	int id;				///< id of user used as primary key in database
-	std::string jid;		///< barejid of XMPP user
-	std::string uin;		///< legacy network username
-	std::string password;	///< password for legacy network
-	std::string language;	///< user's preferred language
-	std::string encoding;	///< user's preferred encoding
-	bool vip;				///< true if user is VIP
+	int id;	
+	std::string name;
+	std::string password;
 };
 
 class MySQLBackend {
@@ -56,7 +52,7 @@ class MySQLBackend {
 		/// already exists.
 		bool createDatabase();
 
-		void setUser(const UserInfo &user);
+		int setUser(const UserInfo &user);
 
 		bool getUser(const std::string &barejid, UserInfo &user);
 

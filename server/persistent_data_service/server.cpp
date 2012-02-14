@@ -32,7 +32,6 @@
 #include "UnifierProtocol.pb.h"
 
 DEFINE_LOGGER(logger, "PersistentDataService");
-static int id;
 
 Server::Server() {
 	m_mysql = new MySQLBackend();
@@ -65,7 +64,19 @@ void Server::handleUserRegister(const std::string &data) {
 	unifier::User user;
 	user.set_id(payload.id());
 	user.set_str1(payload.str1());
-	user.set_str2(boost::lexical_cast<std::string>(++id));
+
+	UserInfo info;
+	if (m_mysql->getUser(payload.str1(), info)) {
+		user.set_str1("Username already registered.");
+		user.set_str2("");
+	}
+	else {
+		info.name = payload.str1();
+		info.password = payload.str2();
+		int id = m_mysql->setUser(info);
+		user.set_str2(boost::lexical_cast<std::string>(id));
+	}
+
 	sendToUnifier("FE", user, unifier::UnifierMessage_Type_TYPE_USER_REGISTER);
 }
 
@@ -79,7 +90,13 @@ void Server::handleUserlogin(const std::string &data) {
 	unifier::User user;
 	user.set_id(payload.id());
 	user.set_str1(payload.str1());
-	user.set_str2(boost::lexical_cast<std::string>(++id));
+
+	UserInfo info;
+	if (m_mysql->getUser(payload.str1(), info)) {
+		if (info.password == payload.str2()) {
+			user.set_str2(boost::lexical_cast<std::string>(info.id));
+		}
+	}
 	sendToUnifier("FE", user, unifier::UnifierMessage_Type_TYPE_USER_LOGIN);
 }
 

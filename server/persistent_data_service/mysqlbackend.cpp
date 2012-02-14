@@ -304,65 +304,24 @@ bool MySQLBackend::connect() {
 
 	createDatabase();
 
-	m_setUser = new Statement(&m_conn, "sssssbss", "INSERT INTO " + m_prefix + "users (jid, uin, password, language, encoding, last_login, vip) VALUES (?, ?, ?, ?, ?, NOW(), ?) ON DUPLICATE KEY UPDATE uin=?, password=?");
-	m_getUser = new Statement(&m_conn, "s|isssssb", "SELECT id, jid, uin, password, encoding, language, vip FROM " + m_prefix + "users WHERE jid=?");
+	m_setUser = new Statement(&m_conn, "sss", "INSERT INTO " + m_prefix + "users (name, password, last_login) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE password=?");
+	m_getUser = new Statement(&m_conn, "s|iss", "SELECT id, name, password FROM " + m_prefix + "users WHERE name=?");
 
 	return true;
 }
 
 bool MySQLBackend::createDatabase() {
-	int not_exist = exec("CREATE TABLE IF NOT EXISTS `" + m_prefix + "buddies` ("
-							"`id` int(10) unsigned NOT NULL auto_increment,"
-							"`user_id` int(10) unsigned NOT NULL,"
-							"`uin` varchar(255) collate utf8_bin NOT NULL,"
-							"`subscription` enum('to','from','both','ask','none') collate utf8_bin NOT NULL,"
-							"`nickname` varchar(255) collate utf8_bin NOT NULL,"
-							"`groups` varchar(255) collate utf8_bin NOT NULL,"
-							"`flags` smallint(4) NOT NULL DEFAULT '0',"
-							"PRIMARY KEY (`id`),"
-							"UNIQUE KEY `user_id` (`user_id`,`uin`)"
-						") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
-
-	if (not_exist) {
-		exec("CREATE TABLE IF NOT EXISTS `" + m_prefix + "buddies_settings` ("
-				"`user_id` int(10) unsigned NOT NULL,"
-				"`buddy_id` int(10) unsigned NOT NULL,"
-				"`var` varchar(50) collate utf8_bin NOT NULL,"
-				"`type` smallint(4) unsigned NOT NULL,"
-				"`value` varchar(255) collate utf8_bin NOT NULL,"
-				"PRIMARY KEY (`buddy_id`,`var`),"
-				"KEY `user_id` (`user_id`)"
-			") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
- 
-		exec("CREATE TABLE IF NOT EXISTS `" + m_prefix + "users` ("
+	int not_exist = exec("CREATE TABLE IF NOT EXISTS `" + m_prefix + "users` ("
 				"`id` int(10) unsigned NOT NULL auto_increment,"
-				"`jid` varchar(255) collate utf8_bin NOT NULL,"
-				"`uin` varchar(4095) collate utf8_bin NOT NULL,"
+				"`name` varchar(255) collate utf8_bin NOT NULL,"
 				"`password` varchar(255) collate utf8_bin NOT NULL,"
-				"`language` varchar(25) collate utf8_bin NOT NULL,"
-				"`encoding` varchar(50) collate utf8_bin NOT NULL default 'utf8',"
 				"`last_login` datetime,"
-				"`vip` tinyint(1) NOT NULL  default '0',"
 				"`online` tinyint(1) NOT NULL  default '0',"
 				"PRIMARY KEY (`id`),"
-				"UNIQUE KEY `jid` (`jid`)"
+				"UNIQUE KEY `name` (`name`)"
 			") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
 
-		exec("CREATE TABLE IF NOT EXISTS `" + m_prefix + "users_settings` ("
-				"`user_id` int(10) unsigned NOT NULL,"
-				"`var` varchar(50) collate utf8_bin NOT NULL,"
-				"`type` smallint(4) unsigned NOT NULL,"
-				"`value` varchar(255) collate utf8_bin NOT NULL,"
-				"PRIMARY KEY (`user_id`,`var`),"
-				"KEY `user_id` (`user_id`)"
-			") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
-
-		exec("CREATE TABLE IF NOT EXISTS `" + m_prefix + "db_version` ("
-				"`ver` int(10) unsigned NOT NULL default '1',"
-				"UNIQUE KEY `ver` (`ver`)"
-			") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
-
-		exec("INSERT IGNORE INTO db_version (ver) VALUES ('2');");
+	if (not_exist) {
 	}
 
 	return true;
@@ -376,33 +335,28 @@ bool MySQLBackend::exec(const std::string &query) {
 	return true;
 }
 
-void MySQLBackend::setUser(const UserInfo &user) {
-// 	std::string encrypted = user.password;
-// 	if (!CONFIG_STRING(m_config, "database.encryption_key").empty()) {
-// 		encrypted = Util::encryptPassword(encrypted, CONFIG_STRING(m_config, "database.encryption_key"));
-// 	}
-// 	*m_setUser << user.jid << user.uin << encrypted << user.language << user.encoding << user.vip << user.uin << encrypted;
-// 	EXEC(m_setUser, setUser(user));
+int MySQLBackend::setUser(const UserInfo &user) {
+	*m_setUser << user.name << user.password << user.password;
+	EXEC(m_setUser, setUser(user));
+
+	return mysql_insert_id(&m_conn);
 }
 
-bool MySQLBackend::getUser(const std::string &barejid, UserInfo &user) {
-	return false;
-// 	*m_getUser << barejid;
-// 	EXEC(m_getUser, getUser(barejid, user));
-// 	if (!exec_ok)
-// 		return false;
-// 
-// 	int ret = false;
-// 	while (m_getUser->fetch() == 0) {
-// 		ret = true;
-// 		*m_getUser >> user.id >> user.jid >> user.uin >> user.password >> user.encoding >> user.language >> user.vip;
-// 
-// 		if (!CONFIG_STRING(m_config, "database.encryption_key").empty()) {
-// 			user.password = Util::decryptPassword(user.password, CONFIG_STRING(m_config, "database.encryption_key"));
-// 		}
-// 	}
-// 
-// 	return ret;
+bool MySQLBackend::getUser(const std::string &name, UserInfo &user) {
+// 		m_getUser = new Statement(&m_conn, "s|iss", "SELECT id, name, password FROM " + m_prefix + "users WHERE name=?");
+
+	*m_getUser << name;
+	EXEC(m_getUser, getUser(name, user));
+	if (!exec_ok)
+		return false;
+
+	int ret = false;
+	while (m_getUser->fetch() == 0) {
+		ret = true;
+		*m_getUser >> user.id >> user.name >> user.password;
+	}
+
+	return ret;
 }
 
 
