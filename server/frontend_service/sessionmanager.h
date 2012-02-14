@@ -47,7 +47,7 @@ class SessionManager : public boost::enable_shared_from_this<Session> {
 		static SessionManager *instance();
 
 	private:
-		void handlePDLoginResponse(const std::string &data);
+		void handlePDLoginRegisterResponse(const std::string &data, bool login = true);
 
 		static SessionManager *m_instance;
 		std::map<unsigned long, Session::ref> m_sessions;

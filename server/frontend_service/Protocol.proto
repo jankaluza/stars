@@ -26,6 +26,7 @@ message WrapperMessage {
 		TYPE_LOGIN				= 3;
 		TYPE_MOVE_STATE			= 4;
 		TYPE_ENTITY_INFO		= 5;
+		TYPE_REGISTER			= 6;
 	}
 	required Type type = 1;
 	optional bytes payload = 2;

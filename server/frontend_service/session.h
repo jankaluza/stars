@@ -78,6 +78,7 @@ class Session : public boost::enable_shared_from_this<Session> {
 		void handleRead(const std::string &data, std::size_t bytes);
 
 		void handleLogin(const std::string &payload);
+		void handleRegister(const std::string &payload);
 		void handleMove(const std::string &payload);
 		void handleEntityInfo(const std::string &payload);
 

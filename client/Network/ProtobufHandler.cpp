@@ -150,6 +150,22 @@ void ProtobufHandler::handleLogin(const std::string &data) {
 	}
 }
 
+void ProtobufHandler::handleRegister(const std::string &data) {
+	stars::Login payload;
+	if (payload.ParseFromString(data) == false) {
+		return;
+	}
+
+	if (payload.username().empty()) {
+		LoginWindow *window = new LoginWindow();
+		window->setInfoText("Unable to register.");
+		WindowManager::instance()->addWindow(window);
+	}
+	else {
+		MapArea::instance()->setConnection(m_conn);
+	}
+}
+
 void ProtobufHandler::handleData(char *data, unsigned long len) {
 	std::string d(data, len);
 	m_data.insert(m_data.end(), d.begin(), d.end());
@@ -189,6 +205,9 @@ void ProtobufHandler::handleData(char *data, unsigned long len) {
 				break;
 			case stars::WrapperMessage_Type_TYPE_LOGIN:
 				handleLogin(wrapper.payload());
+				break;
+			case stars::WrapperMessage_Type_TYPE_REGISTER:
+				handleRegister(wrapper.payload());
 				break;
 			case stars::WrapperMessage_Type_TYPE_ENTITY_INFO:
 				handleEntityInfo(wrapper.payload());

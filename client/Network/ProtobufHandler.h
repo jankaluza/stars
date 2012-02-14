@@ -47,6 +47,7 @@ class ProtobufHandler : public DataHandler {
 	private:
 		void handleMoveState(const std::string &data);
 		void handleLogin(const std::string &data);
+		void handleRegister(const std::string &data);
 		void handleEntityInfo(const std::string &data);
 
 		Connection *m_conn;

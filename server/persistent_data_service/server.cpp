@@ -42,9 +42,26 @@ void Server::handleUnifierMessage(unifier::UnifierMessage &message) {
 		case unifier::UnifierMessage_Type_TYPE_USER_LOGIN:
 			handleUserlogin(message.payload());
 			break;
+		case unifier::UnifierMessage_Type_TYPE_USER_REGISTER:
+			handleUserRegister(message.payload());
+			break;
 		default:
 			break;
 	}
+}
+
+void Server::handleUserRegister(const std::string &data) {
+	unifier::User payload;
+	if (payload.ParseFromString(data) == false) {
+		LOG_ERROR(logger, "handleUserLogin invalid data");
+		return;
+	}
+
+	unifier::User user;
+	user.set_id(payload.id());
+	user.set_str1(payload.str1());
+	user.set_str2(boost::lexical_cast<std::string>(++id));
+	sendToUnifier("FE", user, unifier::UnifierMessage_Type_TYPE_USER_REGISTER);
 }
 
 void Server::handleUserlogin(const std::string &data) {

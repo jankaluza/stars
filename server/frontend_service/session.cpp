@@ -130,7 +130,7 @@ void Session::handleRead(const std::string &d, std::size_t b) {
 		// Parse wrapper message and erase it from buffer.
 		stars::WrapperMessage wrapper;
 		if (wrapper.ParseFromArray(&m_data[4], expected_size) == false) {
-			std::cout << "PARSING ERROR " << expected_size << "\n";
+			LOG_ERROR(logger, "PARSING ERROR");
 			m_data.erase(m_data.begin(), m_data.begin() + 4 + expected_size);
 			continue;
 		}
@@ -140,6 +140,9 @@ void Session::handleRead(const std::string &d, std::size_t b) {
 		switch(wrapper.type()) {
 			case stars::WrapperMessage_Type_TYPE_LOGIN:
 				handleLogin(wrapper.payload());
+				break;
+			case stars::WrapperMessage_Type_TYPE_REGISTER:
+				handleRegister(wrapper.payload());
 				break;
 			case stars::WrapperMessage_Type_TYPE_MOVE_STATE:
 				handleMove(wrapper.payload());
@@ -170,6 +173,20 @@ void Session::handleEntityInfo(const std::string &payload) {
 		p.set_name(s->getUsername());
 		send(p, stars::WrapperMessage_Type_TYPE_ENTITY_INFO);
 	}
+}
+
+void Session::handleRegister(const std::string &data) {
+	stars::Login payload;
+	if (payload.ParseFromString(data) == false) {
+		LOG_ERROR(logger, "handleMove invalid data");
+		return;
+	}
+
+	unifier::User user;
+	user.set_id(m_id);
+	user.set_str1(payload.username());
+	user.set_str2(payload.password());
+	Server::instance()->sendToUnifier("PD", user, unifier::UnifierMessage_Type_TYPE_USER_REGISTER);
 }
 
 void Session::handleLogin(const std::string &data) {

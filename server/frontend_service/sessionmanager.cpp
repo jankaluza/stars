@@ -39,7 +39,7 @@ SessionManager *SessionManager::instance() {
 	return m_instance;
 }
 
-void SessionManager::handlePDLoginResponse(const std::string &data) {
+void SessionManager::handlePDLoginRegisterResponse(const std::string &data, bool log) {
 	unifier::User payload;
 	if (payload.ParseFromString(data) == false) {
 		LOG_ERROR(logger, "handlePDLoginResponse invalid data");
@@ -65,13 +65,22 @@ void SessionManager::handlePDLoginResponse(const std::string &data) {
 	stars::Login login;
 	login.set_username(payload.str1());
 	login.set_password("");
-	s->send(login, stars::WrapperMessage_Type_TYPE_LOGIN);
+
+	if (log) {
+		s->send(login, stars::WrapperMessage_Type_TYPE_LOGIN);
+	}
+	else {
+		s->send(login, stars::WrapperMessage_Type_TYPE_REGISTER);
+	}
 }
 
 void SessionManager::handleUnifierMessage(unifier::UnifierMessage &message) {
 	switch (message.type()) {
 		case unifier::UnifierMessage_Type_TYPE_USER_LOGIN:
-			handlePDLoginResponse(message.payload());
+			handlePDLoginRegisterResponse(message.payload(), true);
+			break;
+		case unifier::UnifierMessage_Type_TYPE_USER_REGISTER:
+			handlePDLoginRegisterResponse(message.payload(), false);
 			break;
 		default:
 			break;

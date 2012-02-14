@@ -36,4 +36,5 @@ class Server : public AbstractService {
 
 	private:
 		void handleUserlogin(const std::string &payload);
+		void handleUserRegister(const std::string &payload);
 };

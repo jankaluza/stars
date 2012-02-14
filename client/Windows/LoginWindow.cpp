@@ -61,8 +61,12 @@ void LoginWindow::handleButtonClicked(Button *button) {
 		payload.set_username(m_username->getText());
 		payload.set_password(m_password->getText());
 
-		ProtobufHandler::send(conn, payload, stars::WrapperMessage_Type_TYPE_LOGIN);
-	// 	MapArea::instance()->setConnection(conn);
+		if (button->getName() == "register") {
+			ProtobufHandler::send(conn, payload, stars::WrapperMessage_Type_TYPE_REGISTER);
+		}
+		else {
+			ProtobufHandler::send(conn, payload, stars::WrapperMessage_Type_TYPE_LOGIN);
+		}
 		destroy();
 		return;
 	}
